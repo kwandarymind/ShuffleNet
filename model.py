@@ -88,7 +88,7 @@ class ShuffleNet:
                 self.optimizer = tf.train.AdamOptimizer(learning_rate=self.args.learning_rate)
                 self.train_op = self.optimizer.minimize(self.loss)
                 # This is for debugging NaNs. Check TensorFlow documentation.
-                self.check_op = tf.add_check_numerics_ops()
+                #WK!!! self.check_op = tf.add_check_numerics_ops()
 
             # Output and Metrics
             self.y_out_softmax = tf.nn.softmax(self.logits)

@@ -2,7 +2,7 @@ import tensorflow as tf
 from tqdm import tqdm
 import numpy as np
 from utils import load_obj
-
+import os
 
 class Train:
     """Trainer class for the CNN.
@@ -14,7 +14,7 @@ class Train:
         self.args = self.model.args
         self.saver = tf.train.Saver(max_to_keep=self.args.max_to_keep,
                                     keep_checkpoint_every_n_hours=10,
-                                    save_relative_paths=True)
+                                    save_relative_paths=True,filename="sfnet")
         # Summarizer references
         self.data = data
         self.summarizer = summarizer
@@ -55,20 +55,21 @@ class Train:
 
     def __load_imagenet_weights(self):
         variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)
-        try:
-            print("Loading ImageNet pretrained weights...")
-            dict = load_obj(self.args.pretrained_path)
-            run_list = []
-            for variable in variables:
-                for key, value in dict.items():
-                    # Adding ':' means that we are interested in the variable itself and not the variable parameters
-                    # that are used in adaptive optimizers
-                    if key + ":" in variable.name:
-                        run_list.append(tf.assign(variable, value))
-            self.sess.run(run_list)
-            print("Weights loaded\n\n")
-        except KeyboardInterrupt:
-            print("No pretrained ImageNet weights exist. Skipping...\n\n")
+        if os.path.isfile(self.args.pretrained_path):
+            try:
+                print("Loading ImageNet pretrained weights...")
+                dict = load_obj(self.args.pretrained_path)
+                run_list = []
+                for variable in variables:
+                    for key, value in dict.items():
+                        # Adding ':' means that we are interested in the variable itself and not the variable parameters
+                        # that are used in adaptive optimizers
+                        if key + ":" in variable.name:
+                            run_list.append(tf.assign(variable, value))
+                self.sess.run(run_list)
+                print("Weights loaded\n\n")
+            except KeyboardInterrupt:
+                print("No pretrained ImageNet weights exist. Skipping...\n\n")
 
     ############################################################################################################
     # Train and Test methods
